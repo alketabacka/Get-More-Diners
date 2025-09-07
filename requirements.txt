@@ -1,0 +1,3 @@
+flask
+supabase-py
+python-dotenv

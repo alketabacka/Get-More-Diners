@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search Diners</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8">
+
+  <h1 class="text-2xl font-bold text-blue-600 mb-6">Diner Search</h1>
+
+  <!-- Search Form -->
+  <form id="searchForm" class="mb-6 flex space-x-4">
+    <input type="text" id="city" placeholder="City" class="px-4 py-2 border rounded-lg">
+    <input type="text" id="state" placeholder="State" class="px-4 py-2 border rounded-lg">
+    <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+      Search
+    </button>
+  </form>
+
+  <!-- Results Table -->
+  <form id="targetForm">
+    <table id="resultsTable" class="w-full bg-white shadow rounded-lg hidden">
+      <thead>
+        <tr class="bg-gray-100 text-left">
+          <th class="p-3"><input type="checkbox" id="selectAll"></th>
+          <th class="p-3">Name</th>
+          <th class="p-3">Email</th>
+          <th class="p-3">City</th>
+          <th class="p-3">State</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+    <button type="submit" id="targetBtn" class="mt-6 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 hidden">
+      Target Selected Diners
+    </button>
+  </form>
+
+  <script>
+    const searchForm = document.getElementById("searchForm");
+    const resultsTable = document.getElementById("resultsTable");
+    const resultsBody = document.getElementById("resultsBody");
+    const targetBtn = document.getElementById("targetBtn");
+    const selectAll = document.getElementById("selectAll");
+    const targetForm = document.getElementById("targetForm");
+
+    searchForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const city = document.getElementById("city").value;
+      const state = document.getElementById("state").value;
+
+      try {
+        const res = await fetch(`/search-diners-json?city=${encodeURIComponent(city)}&state=${encodeURIComponent(state)}`);
+        if (!res.ok) throw new Error("Failed to fetch diners");
+        const diners = await res.json();
+
+        resultsBody.innerHTML = "";
+        if (diners.length === 0) {
+          resultsTable.classList.add("hidden");
+          targetBtn.classList.add("hidden");
+          alert("No diners found");
+          return;
+        }
+
+        diners.forEach(d => {
+          const row = document.createElement("tr");
+          row.classList.add("border-b");
+          row.innerHTML = `
+            <td class="p-3">
+              <input type="checkbox" name="diner_ids" value="${d.id}">
+            </td>
+            <td class="p-3">${d.name}</td>
+            <td class="p-3">${d.email || ''}</td>
+            <td class="p-3">${d.city || ''}</td>
+            <td class="p-3">${d.state || ''}</td>
+          `;
+          resultsBody.appendChild(row);
+        });
+
+        resultsTable.classList.remove("hidden");
+        targetBtn.classList.remove("hidden");
+
+        selectAll.checked = false;
+        selectAll.addEventListener("change", () => {
+          document.querySelectorAll("input[name='diner_ids']").forEach(cb => cb.checked = selectAll.checked);
+        });
+
+      } catch (err) {
+        alert("Error fetching diners: " + err.message);
+      }
+    });
+
+    targetForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const selected = [...document.querySelectorAll("input[name='diner_ids']:checked")].map(cb => cb.value);
+      if (selected.length === 0) {
+        alert("No diners selected");
+        return;
+      }
+      alert("Selected diners: " + selected.join(", "));
+      // TODO: send selected diners to backend
+    });
+  </script>
+</body>
+</html>

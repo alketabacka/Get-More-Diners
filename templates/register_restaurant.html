@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Your Restaurant – Get More Diners</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 flex items-center justify-center h-screen">
+
+  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
+    <h2 class="text-3xl font-bold text-center text-blue-600 mb-6">Register Your Restaurant</h2>
+    <p class="text-center text-gray-600 mb-8">Complete your profile to start reaching nearby diners</p>
+
+    <form id="restaurantForm" class="space-y-5">
+      <input type="hidden" id="user_id" value="{{ request.args.get('user_id') }}">
+
+      <input type="text" id="name" placeholder="Restaurant Name" required
+             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+      <input type="text" id="cuisine" placeholder="Cuisine (e.g. Italian, Mexican)" required
+             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+      <input type="text" id="location" placeholder="Location (City, State)" required
+             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+      <button type="submit"
+              class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 shadow">
+        Save & Continue
+      </button>
+    </form>
+
+    <p id="message" class="mt-4 text-center text-sm text-red-500"></p>
+  </div>
+
+  <script>
+    const form = document.getElementById("restaurantForm");
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const user_id = document.getElementById("user_id").value;
+        const name = document.getElementById("name").value;
+        const cuisine = document.getElementById("cuisine").value;
+        const location = document.getElementById("location").value;
+    
+        const res = await fetch("/register-restaurant-api", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id, name, cuisine, location })
+        });
+    
+        const data = await res.json();
+    
+        if (data.message) {
+            // ✅ Redirect to dashboard after success
+            window.location.href = "/dashboard?restaurant_id=" + data.restaurant_id;
+        } else {
+            document.getElementById("message").innerText = data.error;
+        }
+    });
+    </script>
+    
+
+</body>
+</html>

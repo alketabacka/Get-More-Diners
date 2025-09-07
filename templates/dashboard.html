@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard – Get More Diners</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-bold text-blue-600">🍽 Get More Diners</h1>
+      <div>
+        <a href="/dashboard" class="text-gray-700 hover:text-blue-600 mx-2">Dashboard</a>
+        <a href="/logout" class="text-gray-700 hover:text-red-600 mx-2">Logout</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6">Welcome to Your Dashboard</h2>
+
+    <!-- Grid: Profile | Actions -->
+    <div class="grid md:grid-cols-2 gap-6">
+      
+      <!-- Profile Card -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-3">Your Restaurant</h3>
+        <p class="text-gray-600">Here’s your current restaurant profile:</p>
+        <ul class="mt-4 space-y-2 text-gray-700">
+          <li><strong>Name:</strong> {{ restaurant.name if restaurant else "N/A" }}</li>
+          <li><strong>Cuisine:</strong> {{ restaurant.cuisine if restaurant else "N/A" }}</li>
+          <li><strong>Location:</strong> {{ restaurant.location if restaurant else "N/A" }}</li>
+        </ul>
+      </div>
+
+      <!-- Search Diners -->
+      <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-3">🔍 Search Diners</h3>
+        <form id="searchForm" class="space-y-3">
+
+          <!-- State Dropdown -->
+          <select id="stateSelect" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Select State --</option>
+            <option value="ENG">ENG</option>
+            <option value="California">California</option>
+            <option value="Florida">Florida</option>
+            <option value="Texas">Texas</option>
+            <!-- Add more states as needed -->
+          </select>
+
+          <!-- City Dropdown -->
+          <select id="citySelect" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Select City --</option>
+          </select>
+        
+          <!-- Diner Type Dropdown -->
+          <select id="dinerType" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+            <option value="">-- Select Diner Type --</option>
+            <option value="Pubs">Pubs</option>
+            <option value="Fine Dining">Fine Dining</option>
+            <option value="Coffee Shops">Coffee Shops</option>
+            <option value="Take Out">Take Out</option>
+          </select>
+          
+          <button type="submit"
+                  class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Search
+          </button>
+          <button id="selectAllDiners" type="button" 
+                 class="mt-2 mb-2 py-1 px-3 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+          Select All
+          </button>
+        </form>
+        <div id="searchResults" class="mt-4 text-sm text-gray-600"></div>
+      </div>
+    </div>
+
+    <!-- AI Offer -->
+    <div class="bg-white shadow rounded-lg p-6 mt-6">
+      <h3 class="text-xl font-semibold mb-3">🤖 Create AI Offer</h3>
+      
+      <input type="text" id="offerTitle" placeholder="Offer Title"
+             class="w-full px-3 py-2 border rounded-lg mb-3">
+
+      <input type="date" id="offerEndDate" 
+             class="w-full px-3 py-2 border rounded-lg mb-3" 
+             placeholder="Offer End Date">
+      
+      <textarea id="aiOfferMessage" placeholder="AI will generate message here..." required
+               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 mb-3"></textarea>
+
+      <button type="button" id="generateOffer" class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 mb-3">
+        Generate AI Message
+      </button>
+      
+      <button id="sendOffer" class="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+        Send Offer
+      </button>
+    
+      <p id="offerStatus" class="mt-2 text-sm text-gray-600"></p>
+    </div>
+    
+    <!-- Past Campaigns -->
+    <div class="bg-white shadow rounded-lg p-6 mt-8">
+      <h3 class="text-xl font-semibold mb-4">📊 Past Campaigns</h3>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-gray-100 text-gray-700">
+            <th class="p-3 border">Title</th>
+            <th class="p-3 border">Date</th>
+            <th class="p-3 border">Recipients</th>
+          </tr>
+        </thead>
+        <tbody id="campaignTable">
+          <!-- Filled dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 py-6 text-center text-gray-500">
+    © 2025 Get More Diners. All rights reserved.
+  </footer>
+
+  <script>
+    const restaurantId = "{{ restaurant.id if restaurant else '' }}";
+
+    // Load cities based on selected state
+    document.getElementById("stateSelect").addEventListener("change", async (e) => {
+      const state = e.target.value;
+      const citySelect = document.getElementById("citySelect");
+      citySelect.innerHTML = '<option value="">-- Select City --</option>';
+
+      if (!state) return;
+
+      try {
+        const res = await fetch(`/cities-by-state?state=${encodeURIComponent(state)}`);
+        const cities = await res.json();
+        cities.forEach(city => {
+          const option = document.createElement("option");
+          option.value = city;
+          option.textContent = city;
+          citySelect.appendChild(option);
+        });
+      } catch (err) {
+        console.error("Failed to load cities:", err);
+      }
+    });
+
+    // Handle diner search
+    document.getElementById("searchForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const state = document.getElementById("stateSelect").value;
+      const city = document.getElementById("citySelect").value;
+      const type = document.getElementById("dinerType").value;
+
+      let url = `/search-diners-json?state=${encodeURIComponent(state)}&city=${encodeURIComponent(city)}`;
+      if (type) url += `&type=${encodeURIComponent(type)}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      let output = "";
+      if (data.length > 0) {
+        output = "<ul class='list-disc ml-4'>";
+        data.forEach(d => {
+          output += `<li>
+                       <input type="checkbox" name="diner_ids" data-email="${d.email}" class="mr-2">
+                       ${d.name} (${d.city}, ${d.state})
+                     </li>`;
+        });
+        output += "</ul>";
+      } else {
+        output = "No diners found.";
+      }
+      document.getElementById("searchResults").innerHTML = output;
+    });
+
+    // AI Offer
+    document.getElementById("generateOffer").addEventListener("click", async () => {
+      const title = document.getElementById("offerTitle").value;
+      const endDate = document.getElementById("offerEndDate").value;
+      if (!title || !endDate) return alert("Please fill title and end date.");
+
+      try {
+        const res = await fetch("/generate-ai-offer", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({title, end_date: endDate, restaurant_id: restaurantId})
+        });
+        const data = await res.json();
+        document.getElementById("aiOfferMessage").value = data.message || "";
+      } catch (err) {
+        console.error(err);
+        alert("Failed to generate AI message.");
+      }
+    });
+
+    document.getElementById("sendOffer").addEventListener("click", async () => {
+      const title = document.getElementById("offerTitle").value;
+      const message = document.getElementById("aiOfferMessage").value;
+      const selectedDiners = [...document.querySelectorAll("input[name='diner_ids']:checked")].map(cb => cb.dataset.email);
+      if (!title || !message || selectedDiners.length === 0) return alert("Fill all fields and select diners.");
+
+      try {
+        const res = await fetch("/send-offer", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({title, message, recipients: selectedDiners, restaurant_id: restaurantId})
+        });
+        const data = await res.json();
+        document.getElementById("offerStatus").innerText = data.message || data.error;
+        loadPastCampaigns();
+      } catch (err) {
+        console.error(err);
+        alert("Failed to save offer.");
+      }
+    });
+
+    // Load past campaigns
+    async function loadPastCampaigns() {
+      if (!restaurantId) return;
+      try {
+        const res = await fetch(`/offers/${restaurantId}`);
+        const offers = await res.json();
+        let tableRows = "";
+        offers.forEach(o => {
+          const date = o.created_at ? new Date(o.created_at).toLocaleDateString() : "-";
+          tableRows += `
+            <tr>
+              <td class="p-3 border">${o.title}</td>
+              <td class="p-3 border">${date}</td>
+              <td class="p-3 border">${o.recipient_count}</td>
+            </tr>`;
+        });
+        document.getElementById("campaignTable").innerHTML = tableRows;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("campaignTable").innerHTML = "<tr><td colspan='3'>Failed to load campaigns</td></tr>";
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", loadPastCampaigns);
+    document.getElementById("selectAllDiners").addEventListener("click", () => {
+      const checkboxes = document.querySelectorAll("input[name='diner_ids']");
+      const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+      checkboxes.forEach(cb => cb.checked = !allChecked); // toggle
+    });
+    
+  </script>
+</body>
+</html>
