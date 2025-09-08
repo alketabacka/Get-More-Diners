@@ -1,1 +1,33 @@
-<html><body>{% block content %}{% endblock %}</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Get More Diners{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-indigo-600">Get More Diners</h1>
+    <div class="space-x-4">
+      <a href="/" class="text-gray-600 hover:text-indigo-600">Home</a>
+      <a href="/signup-page" class="text-gray-600 hover:text-indigo-600">Sign Up</a>
+      <a href="/login-page" class="text-gray-600 hover:text-indigo-600">Login</a>
+      <a href="/dashboard" class="text-gray-600 hover:text-indigo-600">Dashboard</a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="flex-1 container mx-auto p-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-100 text-center py-4 text-sm text-gray-500">
+    © 2025 Get More Diners. All rights reserved.
+  </footer>
+
+</body>
+</html>

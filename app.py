@@ -5,23 +5,30 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from datetime import datetime
-from openai import OpenAI, RateLimitError
-
+import smtplib
+from email.mime.text import MIMEText
+import requests
+from email.mime.multipart import MIMEMultipart
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import openai
+import random
 # Load environment variables
 load_dotenv(dotenv_path=".env")
 
+
 app = Flask(__name__)
 app.secret_key = os.getenv("app.secret_key")
-openai_api_key = os.getenv("OPENAI_API_KEYY")
-client = OpenAI(api_key=openai_api_key)
+#openai_api_key = os.getenv("OPENAI_API_KEYY")
+#client = OpenAI(api_key=openai_api_key)
 # Supabase credentials
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-GMAIL_EMAIL = os.getenv("SMTP_EMAIL")         
-GMAIL_APP_PASSWORD = os.getenv("SMTP_PASSWORD")  
-
+openai.api_key = os.getenv("OPENAI_API_KEY")
 # Create Supabase client
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+GMAIL_EMAIL = os.getenv("GMAIL_EMAIL")
+GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+DEMO_MODE= True
 
 # ----------------- Routes -----------------
 @app.route("/signup-page")
@@ -37,9 +44,9 @@ def logout():
 def login_page():
     return render_template("login.html")
 
-@app.route("/")
+@app.route('/')
 def home():
-    return render_template("home.html")
+    return render_template('home.html')
 
 @app.route("/register-restaurant")
 def register_restaurant_page():
@@ -54,11 +61,16 @@ def search_diners_page():
 def dashboard():
     restaurant = None
     user_id = request.args.get("user_id")
-    if user_id:
-        response = supabase.table("restaurants").select("*").eq("user_id", user_id).execute()
-        if response.data:
-            restaurant = response.data[0]
-        
+    restaurant_id = request.args.get("restaurant_id")
+    if restaurant_id:
+        resp = supabase.table("restaurants").select("*").eq("id", restaurant_id).execute()
+        if resp.data:
+            restaurant = resp.data[0]
+    elif user_id:
+        resp = supabase.table("restaurants").select("*").eq("user_id", user_id).execute()
+        if resp.data:
+            restaurant = resp.data[0]
+
     return render_template("dashboard.html", restaurant=restaurant)
 
     # If coming from login (use user_id to find restaurant)
@@ -147,54 +159,64 @@ def register_restaurant_api():
     })
 
 # ----------------- Generate AI Offer route -----------------
+
+# Demo diners list
+DINERS = [
+    "alice@example.com",
+    "bob@example.com",
+    "carol@example.com"
+]
+
 @app.route("/generate-ai-offer", methods=["POST"])
 def generate_ai_offer():
     data = request.get_json()
-    title = data.get("title", "")
+    title = data.get("title", "Special Offer")
     end_date = data.get("end_date", "")
-    restaurant_id = data.get("restaurant_id")  # Ensure the front-end sends this
-
-    if not title or not end_date:
-        return jsonify({"error": "Title and end date are required"}), 400
-
-    # Fetch restaurant name from Supabase
-    restaurant_name = "Your Restaurant"
     restaurant_id = data.get("restaurant_id")
+
+    # Get restaurant name
+    restaurant_name = "Your Restaurant"
     if restaurant_id:
         resp = supabase.table("restaurants").select("name").eq("id", restaurant_id).execute()
         if resp.data and resp.data[0].get("name"):
             restaurant_name = resp.data[0]["name"]
 
-    # Format end date nicely
+    # Format the date nicely
     try:
         formatted_date = datetime.strptime(end_date, "%Y-%m-%d").strftime("%B %d, %Y")
     except:
         formatted_date = end_date
 
-    # Create AI prompt
-    prompt = f"""
-    Generate a creative restaurant offer based on the title: "{title}".
-    Use the restaurant name: "{restaurant_name}".
-    Include a clear end date: {formatted_date}.
-    Make it engaging and unique. Avoid generic phrases like 'Enjoy 20% off this week!'.
-    """
-
-    ai_message = ""
-    try:
-        # Attempt OpenAI API call
-        response = client.chat.completions.create(
-            model="gpt-5-nano",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.7,
-            max_tokens=300
-        )
-        ai_message = response.choices[0].message.content
-    except Exception as e:
-        print("OpenAI API failed:", e)
-        # Fallback message if API fails
-        ai_message = f"{restaurant_name} has a special offer: '{title}', valid until {formatted_date}."
+    # DEMO_MODE: generate local AI message
+    if DEMO_MODE:
+        templates = [
+            f"🎉 Hey foodies! {restaurant_name} is serving up '{title}' until {formatted_date}. Don’t miss out! 🍽️",
+            f"🔥 Hot deal alert! '{title}' at {restaurant_name} – grab it before {formatted_date}!",
+            f"🥳 Time to treat yourself! Enjoy '{title}' at {restaurant_name} before {formatted_date}.",
+            f"🍕 Delicious deal incoming! '{title}' at {restaurant_name} is available until {formatted_date}. Bring your friends!"
+        ]
+        ai_message = random.choice(templates)
+        #print(f"[DEMO MODE] Generated AI offer: {ai_message}")
+    else:
+        # real OpenAI API call (if you disable demo mode)
+        try:
+            prompt = f"Write a fun and creative restaurant promotion. Restaurant: '{restaurant_name}', Special Offer: '{title}', ends on {formatted_date}. Make it engaging and persuasive."
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a creative marketing assistant for restaurants."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=150,
+                temperature=0.8
+            )
+            ai_message = response.choices[0].message.content.strip()
+        except Exception as e:
+            print("OpenAI API error:", e)
+            ai_message = f"{restaurant_name} has a special offer: '{title}', valid until {formatted_date}."
 
     return jsonify({"message": ai_message, "restaurant_name": restaurant_name})
+
 
 # ----------------- Users route -----------------
 @app.route("/users")
@@ -282,14 +304,18 @@ def search_diners_json():
 @app.route('/send-offer', methods=['POST'])
 def send_offer():
     data = request.json or {}
+    offer_text = data.get("offer")
     offer_title = data.get("title", "Special Offer")
     offer_message = data.get("message", "")
-    restaurant_id = data.get("restaurant_id")        # Optional, for record-keeping
+    restaurant_id = data.get("restaurant_id") or session.get("restaurant_id")
     restaurant_name = data.get("restaurant_name", "Your Restaurant")  # optional
     selected_diners = data.get("recipients", []) 
+
     # Validate required fields
     if not restaurant_id:
         return jsonify({"success": False, "error": "Restaurant ID missing"}), 400
+    if not offer_title or not offer_message or len(selected_diners) == 0:
+        return jsonify({"success": False, "error": "Please fill all fields and select diners"}), 400
 
     try:
         recipient_count = len(selected_diners)
@@ -303,11 +329,37 @@ def send_offer():
         }).execute()
 
         offer = offer_resp.data[0] if offer_resp.data else None
-        return jsonify({"success": True, "message": "Offer saved successfully!","offer": offer})
+ 
+        if DEMO_MODE:
+            for recipient in selected_diners:
+                print(f"[DEMO MODE] Would send email to {recipient} with message: {offer_message}")
+        else:
+            try:
+                smtp_server = smtplib.SMTP("smtp.gmail.com", 587)
+                smtp_server.starttls()
+                smtp_server.login(GMAIL_EMAIL, GMAIL_APP_PASSWORD)
+                for recipient in selected_diners:
+                    msg = MIMEMultipart()
+                    msg['From'] = GMAIL_EMAIL
+                    msg['To'] = recipient
+                    msg['Subject'] = f"{restaurant_name} - {offer_title}"
+                    msg.attach(MIMEText(offer_message, 'plain'))
+                    smtp_server.sendmail(GMAIL_EMAIL, recipient, msg.as_string())
+                smtp_server.quit()
+                print(f"Offer emails sent to {recipient_count} diners.")
+            except Exception as e:
+                print("Error sending emails:", e)
+
+        return jsonify({
+            "success": True,
+            "message": "Offer saved successfully! (Emails sent in live mode)",
+            "offer": offer
+        })
 
     except Exception as e:
         print("Error saving offer:", e)
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 # ----------------- Offers Restaurant route -----------------
 @app.route("/offers/<restaurant_id>")
@@ -342,9 +394,19 @@ def cities_by_state():
     if not state:
         return jsonify([])
 
-    response = supabase.table("diners").select("city").ilike("state", state).execute()
-    cities = sorted(list({d["city"] for d in response.data})) if response.data else []
-    return jsonify(cities)
+    try:
+        # Query diners where state matches exactly (case-insensitive)
+        response = supabase.table("diners").select("city").ilike("state", state).execute()
+        
+        # Extract unique, non-empty cities
+        cities = sorted(list({d["city"] for d in response.data if d.get("city")})) if response.data else []
+        return jsonify(cities)
+    
+    except Exception as e:
+        print("Error fetching cities:", e)
+        return jsonify([])
+
+
 
 
 if __name__ == "__main__":

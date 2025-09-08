@@ -5,27 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register Your Restaurant – Get More Diners</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Warm cream theme */
+    body {
+      background-color: #FFF8F5; /* Cream background */
+      font-family: 'Inter', sans-serif;
+    }
+    .card {
+      background-color: #EFE6DD; /* Light cream card */
+    }
+    .btn-primary {
+      background-color: #D9A066; /* Warm caramel button */
+      color: #fff;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background-color: #B7894F; /* Darker caramel on hover */
+      transform: scale(1.02);
+    }
+    .text-accent {
+      color: #D9A066;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center h-screen">
+<body class="flex items-center justify-center min-h-screen">
 
-  <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
-    <h2 class="text-3xl font-bold text-center text-blue-600 mb-6">Register Your Restaurant</h2>
-    <p class="text-center text-gray-600 mb-8">Complete your profile to start reaching nearby diners</p>
+  <div class="w-full max-w-md rounded-xl shadow-lg p-8 card">
+    <h2 class="text-3xl font-bold text-center text-accent mb-4">Register Your Restaurant</h2>
+    <p class="text-center text-gray-700 mb-6">Complete your profile to start reaching nearby diners</p>
 
     <form id="restaurantForm" class="space-y-5">
       <input type="hidden" id="user_id" value="{{ request.args.get('user_id') }}">
 
       <input type="text" id="name" placeholder="Restaurant Name" required
-             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D9A066]">
 
       <input type="text" id="cuisine" placeholder="Cuisine (e.g. Italian, Mexican)" required
-             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D9A066]">
 
       <input type="text" id="location" placeholder="Location (City, State)" required
-             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+             class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D9A066]">
 
       <button type="submit"
-              class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 shadow">
+              class="w-full py-3 btn-primary font-semibold rounded-lg shadow">
         Save & Continue
       </button>
     </form>
@@ -42,23 +64,36 @@
         const cuisine = document.getElementById("cuisine").value;
         const location = document.getElementById("location").value;
     
-        const res = await fetch("/register-restaurant-api", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_id, name, cuisine, location })
-        });
+        try {
+          const res = await fetch("/register-restaurant-api", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id, name, cuisine, location })
+          });
     
-        const data = await res.json();
+          const data = await res.json();
     
-        if (data.message) {
-            // ✅ Redirect to dashboard after success
-            window.location.href = "/dashboard?restaurant_id=" + data.restaurant_id;
-        } else {
-            document.getElementById("message").innerText = data.error;
+          const messageEl = document.getElementById("message");
+          if (res.ok && data.restaurant_id) {
+              messageEl.classList.remove("text-red-500");
+              messageEl.classList.add("text-green-500");
+              messageEl.innerText = "✅ Registration successful! Redirecting...";
+              setTimeout(() => {
+                window.location.href = "/dashboard?restaurant_id=" + data.restaurant_id;
+              }, 1500);
+          } else {
+              messageEl.classList.remove("text-green-500");
+              messageEl.classList.add("text-red-500");
+              messageEl.innerText = data.error || "⚠️ Something went wrong.";
+          }
+        } catch (err) {
+          const messageEl = document.getElementById("message");
+          messageEl.classList.remove("text-green-500");
+          messageEl.classList.add("text-red-500");
+          messageEl.innerText = "⚠️ Network error. Please try again.";
+          console.error(err);
         }
     });
-    </script>
-    
-
+  </script>
 </body>
 </html>

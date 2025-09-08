@@ -5,51 +5,190 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Get More Diners</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #EFE6DD;
+      color: #2C2C2C;
+      font-family: sans-serif;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background-color: #D9A066;
+      color: #ffffff;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover {
+      background-color: #C48A3E;
+      transform: scale(1.02);
+    }
+    .btn-secondary {
+      background-color: #E0BFAE;
+      color: #2C2C2C;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background-color: #D9A066;
+      color: #ffffff;
+      transform: scale(1.02);
+    }
+
+    /* Hero gradient */
+    .hero-bg {
+      background: linear-gradient(135deg, #EFE6DD, #F4EDE8);
+    }
+
+    /* Accent Text & Borders */
+    .text-accent { color: #D9A066; }
+    .border-accent { border-top: 4px solid #E0BFAE; }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body>
 
   <!-- Navbar -->
-  <nav class="bg-white shadow-md">
+  <nav class="bg-white shadow-lg">
     <div class="container mx-auto flex justify-between items-center p-4">
-      <h1 class="text-2xl font-bold text-blue-600">🍽 Get More Diners</h1>
-      <div>
-        <a href="/signup-page" class="text-gray-700 hover:text-blue-600 mx-2">Sign Up</a>
-        <a href="/login-page" class="text-gray-700 hover:text-blue-600 mx-2">Login</a>
+      <h1 class="text-2xl font-bold text-accent tracking-tight">🍽 Get More Diners</h1>
+      <div class="space-x-4">
+        <a href="/signup-page" class="px-4 py-2 rounded-lg btn-primary font-medium">Sign Up</a>
+        <a href="/login-page" class="px-4 py-2 rounded-lg btn-secondary font-medium">Login</a>
       </div>
     </div>
   </nav>
 
   <!-- Hero Section -->
-  <section class="container mx-auto text-center py-20">
-    <h2 class="text-4xl md:text-5xl font-bold mb-6">
-      Get More Diners – Grow your restaurant with <span class="text-blue-600">targeted offers</span>
-    </h2>
-    <p class="text-lg text-gray-600 mb-8">
-      A simple way for US restaurant owners to attract nearby diners with personalized promotions.
+  <section class="hero-bg py-24 text-center">
+    <div class="container mx-auto px-6 md:px-0">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-6 text-accent">
+        Grow your restaurant with <span class="text-[#2C2C2C]">targeted offers</span>
+      </h2>
+      <p class="text-lg md:text-xl mb-10 max-w-xl mx-auto">
+        A simple way for restaurant owners to attract nearby diners with personalized promotions.
+      </p>
+      <a href="/signup-page" class="inline-block px-8 py-4 btn-primary font-semibold rounded-lg shadow-lg hover:btn-primary text-lg">
+        Get Started – It’s Free
+      </a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="container mx-auto py-20 px-6 md:px-0">
+    <h3 class="text-3xl font-bold text-center mb-12 text-accent">Features</h3>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow border-accent">
+        <h4 class="text-xl font-semibold mb-3 text-accent">📋 Easy Sign Up</h4>
+        <p>Create your restaurant profile in minutes and start reaching new diners effortlessly.</p>
+      </div>
+      <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow border-accent">
+        <h4 class="text-xl font-semibold mb-3 text-accent">🔍 Smart Search</h4>
+        <p>Find potential diners nearby using our large, searchable database.</p>
+      </div>
+      <div class="bg-white p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow border-accent">
+        <h4 class="text-xl font-semibold mb-3 text-accent">📩 Send Offers</h4>
+        <p>Craft AI-powered promotions and send via email or SMS instantly to your target diners.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="py-20">
+    <div class="container mx-auto px-6 md:px-0 text-center">
+      <h3 class="text-3xl font-bold mb-12 text-accent">How It Works</h3>
+      <div class="grid md:grid-cols-4 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
+          <div class="text-4xl mb-4 text-accent font-bold">1️⃣</div>
+          <h4 class="text-lg font-semibold mb-2">Sign Up</h4>
+          <p>Create your restaurant profile quickly.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
+          <div class="text-4xl mb-4 text-accent font-bold">2️⃣</div>
+          <h4 class="text-lg font-semibold mb-2">Find Diners</h4>
+          <p>Search nearby diners easily.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
+          <div class="text-4xl mb-4 text-accent font-bold">3️⃣</div>
+          <h4 class="text-lg font-semibold mb-2">Send Offers</h4>
+          <p>Generate AI-powered offers to engage diners.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition-shadow">
+          <div class="text-4xl mb-4 text-accent font-bold">4️⃣</div>
+          <h4 class="text-lg font-semibold mb-2">Grow Your Business</h4>
+          <p>Attract more diners and increase revenue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-20 bg-[#F4EDE8]">
+    <div class="container mx-auto px-6 md:px-0 text-center">
+      <h3 class="text-3xl font-bold mb-12 text-accent">What Our Clients Say</h3>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-accent">
+          <p>"Since using Get More Diners, our evening bookings have doubled! Highly recommend."</p>
+          <h5 class="mt-4 font-semibold">– Jamie L., NYC</h5>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-accent">
+          <p>"Easy to set up and the AI-generated offers work like magic!"</p>
+          <h5 class="mt-4 font-semibold">– Maria S., Chicago</h5>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow border-accent">
+          <p>"Our restaurant has never seen so many new customers in a month."</p>
+          <h5 class="mt-4 font-semibold">– Alex P., Miami</h5>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-20 text-center">
+    <h3 class="text-3xl font-bold mb-12 text-accent">Our Impact</h3>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="text-2xl font-bold text-[#D9A066]">500+</div>
+      <p>Restaurants using our platform</p>
+      
+      <div class="text-2xl font-bold text-[#D9A066]">10K+</div>
+      <p>Offers sent monthly</p>
+      
+      <div class="text-2xl font-bold text-[#D9A066]">95%</div>
+      <p>Satisfaction rate</p>
+    </div>
+  </section>
+  <section class="py-20 bg-[#EFE6DD]">
+    <div class="container mx-auto px-6 md:px-0">
+      <h3 class="text-3xl font-bold mb-12 text-center text-accent">Frequently Asked Questions</h3>
+      <div class="space-y-6 max-w-3xl mx-auto">
+        <div>
+          <h4 class="font-semibold">Can I target only local diners?</h4>
+          <p>Absolutely. Our platform allows you to filter diners by location, cuisine preferences, and more.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold">How does AI help create offers?</h4>
+          <p>Our AI generates personalized promotions that are optimized for engagement and conversion.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="py-16 bg-[#F4EDE8] text-center rounded-xl mx-6 my-16 shadow-lg">
+    <h3 class="text-3xl font-bold mb-4 text-[#D9A066]">Get Tips to Grow Your Restaurant</h3>
+    <p class="mb-6 text-lg text-[#2C2C2C]">Subscribe to our newsletter for marketing tips and exclusive offers.</p>
+    <form class="flex flex-col md:flex-row justify-center gap-4 max-w-xl mx-auto">
+      <input type="email" placeholder="Your email" class="p-4 rounded-lg border border-gray-300 flex-1" />
+      <button class="btn-primary px-6 py-4 rounded-lg font-semibold">Subscribe</button>
+    </form>
+  </section>
+  
+  
+  <!-- CTA Banner -->
+  <section class="py-16 text-center rounded-xl mx-6 my-16 shadow-lg bg-[#EFE6DD]">
+    <h3 class="text-3xl font-bold mb-4 text-[#D9A066]">Ready to Grow Your Restaurant?</h3>
+    <p class="mb-6 text-lg text-[#2C2C2C]">
+      Join hundreds of restaurants already attracting more diners every day.
     </p>
-    <a href="/signup-page" class="px-6 py-3 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700">
+    <a href="/signup-page" class="px-8 py-4 btn-primary rounded-lg font-semibold hover:btn-primary">
       Get Started – It’s Free
     </a>
   </section>
-
-  <!-- Features -->
-  <section class="container mx-auto grid md:grid-cols-3 gap-8 py-16 px-6">
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h3 class="font-semibold text-xl mb-3">📋 Easy Sign Up</h3>
-      <p>Create your restaurant profile in minutes and start reaching new diners.</p>
-    </div>
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h3 class="font-semibold text-xl mb-3">🔍 Smart Search</h3>
-      <p>Find potential diners nearby using our large, searchable database.</p>
-    </div>
-    <div class="bg-white p-6 rounded-lg shadow">
-      <h3 class="font-semibold text-xl mb-3">📩 Send Offers</h3>
-      <p>Craft AI-powered promotions and send via email or SMS instantly.</p>
-    </div>
-  </section>
+  
 
   <!-- Footer -->
-  <footer class="bg-gray-100 py-6 text-center text-gray-500">
+  <footer class="bg-white py-6 text-center text-[#2C2C2C] font-medium shadow-inner">
     © 2025 Get More Diners. All rights reserved.
   </footer>
 
