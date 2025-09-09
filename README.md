@@ -16,7 +16,7 @@ All from a user-friendly dashboard.
 ## 🗄️ Database Overview
 The backend is powered by a PostgreSQL database hosted on Supabase, using the default public schema. This schema is exposed via the Supabase Data API for seamless frontend integration.
 
-### Current Tables
+## Current Tables
 restaurants → Stores restaurant details (name, location, contact info).
 
 diners → Contains diner records including name, email, and diner preferences.
