@@ -1,8 +1,17 @@
 # Get More Diners
 A Smart Dashboard for Restaurant Owners to Boost Engagement with AI-Powered Promotions
 
+**Demo Mode:** You can try the application **without an OpenAI API key**. AI-generated offers are simulated locally so reviewers can fully explore the features safely. [![Demo Mode](https://img.shields.io/badge/Demo-Enabled-brightgreen)](https://get-more-diners-4.onrender.com)
+
+
 ## 🚀 Project Overview
-Get More Diners is a web application designed to empower restaurant owners with AI-driven promotional tools. It enables them to create compelling offers, analyze diner data, and track campaign performance—all from a user-friendly dashboard.
+Get More Diners is a web application designed to empower restaurant owners with AI-driven promotional tools. It enables them to:
+Create compelling offers
+Analyze diner data
+Track campaign performance
+Use Demo Mode without requiring an API key
+
+All from a user-friendly dashboard.
 
 ## 🗄️ Database Overview
 The backend is powered by a PostgreSQL database hosted on Supabase, using the default public schema. This schema is exposed via the Supabase Data API for seamless frontend integration.
@@ -16,7 +25,7 @@ offers → Holds promotional offers (title, description, start & end dates, link
 
 campaigns → Tracks promotional campaigns, their status, and performance metrics.
 
-## Example Relationship Diagram
+## Relationships
 
 A restaurant can create many offers.
 
