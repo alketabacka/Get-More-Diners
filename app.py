@@ -9,7 +9,6 @@ import smtplib
 from email.mime.text import MIMEText
 import requests
 from email.mime.multipart import MIMEMultipart
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import openai
 import random
 # Load environment variables
@@ -18,7 +17,7 @@ load_dotenv(dotenv_path=".env")
 
 app = Flask(__name__)
 app.secret_key = os.getenv("app.secret_key")
-#openai_api_key = os.getenv("OPENAI_API_KEYY")
+
 #client = OpenAI(api_key=openai_api_key)
 # Supabase credentials
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -159,13 +158,6 @@ def register_restaurant_api():
     })
 
 # ----------------- Generate AI Offer route -----------------
-
-# Demo diners list
-DINERS = [
-    "alice@example.com",
-    "bob@example.com",
-    "carol@example.com"
-]
 
 @app.route("/generate-ai-offer", methods=["POST"])
 def generate_ai_offer():
@@ -405,8 +397,6 @@ def cities_by_state():
     except Exception as e:
         print("Error fetching cities:", e)
         return jsonify([])
-
-
 
 
 if __name__ == "__main__":
