@@ -3,7 +3,7 @@ from supabase import Client, create_client
 import os
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
-import psycopg2
+import psycopg
 from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
